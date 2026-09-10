@@ -1,0 +1,111 @@
+:root {
+  --bg: #0b0d12;
+  --panel: #12151d;
+  --panel-2: #171b26;
+  --border: #262b38;
+  --text: #d7dae2;
+  --text-dim: #8a90a2;
+  --text-h: #f5f6fa;
+  --accent: #4f8cff;
+  --up: #35c777;
+  --down: #ff5d5d;
+  --warn: #ffb547;
+
+  --tech: #6aa9ff;
+  --energy: #4fd18b;
+  --crypto: #ffcf56;
+
+  font: 15px/1.5 system-ui, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  color: var(--text-h);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  transition: background 0.12s, border-color 0.12s;
+}
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+button.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+button.up {
+  border-color: var(--up);
+}
+button.down {
+  border-color: var(--down);
+}
+
+input, select {
+  font: inherit;
+  color: var(--text-h);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+
+.sector-tech { color: var(--tech); }
+.sector-energy { color: var(--energy); }
+.sector-crypto { color: var(--crypto); }
+.bg-sector-tech { background: color-mix(in srgb, var(--tech) 16%, transparent); border-color: color-mix(in srgb, var(--tech) 45%, var(--border)); }
+.bg-sector-energy { background: color-mix(in srgb, var(--energy) 16%, transparent); border-color: color-mix(in srgb, var(--energy) 45%, var(--border)); }
+.bg-sector-crypto { background: color-mix(in srgb, var(--crypto) 16%, transparent); border-color: color-mix(in srgb, var(--crypto) 45%, var(--border)); }
+
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }

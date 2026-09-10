@@ -1,0 +1,6 @@
+# Lo stack per addestrare. Installalo con:  npm run py:setup -- --rl
+-r requirements.txt
+numpy>=1.24
+torch>=2.0
+gymnasium>=0.28
+# sb3-contrib>=2.2   # solo se vuoi MaskablePPO invece del PPO in train.py

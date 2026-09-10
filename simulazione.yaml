@@ -1,0 +1,142 @@
+# =============================================================================
+#  FOMO & FUD — CONFIGURAZIONE DELLE SIMULAZIONI
+#
+#  Modifica i valori qui sotto, poi lancia:
+#
+#      npm run sim
+#
+#  Non serve nessun argomento da terminale. Ogni scenario elencato in fondo
+#  viene simulato, riassunto a schermo e messo a confronto nello stesso report.
+# =============================================================================
+
+# Quante partite giocare, per ogni scenario.
+games: 20000
+
+# Un agente per posto: da 3 a 5.
+# Disponibili: random · heuristic · etfhunter · cashking · bluffer · impatient
+agents: [heuristic, etfhunter, cashking, bluffer]
+
+# Seed di partenza. Lo stesso seed rigioca esattamente le stesse partite,
+# quindi due run confrontabili non differiscono per fortuna ai dadi.
+seed: 1
+
+# Thread paralleli. "auto" usa i core disponibili meno uno.
+workers: auto
+
+# Ruota chi siede dove fra una partita e l'altra, così nessun agente resta
+# inchiodato allo stesso posto del tavolo.
+rotateSeats: true
+
+# Cartella dove finiscono i .jsonl e il report.
+outDir: data
+
+# Genera anche il report HTML con i grafici.
+report: true
+
+# Reinforcement learning (usato da npm run play e npm run train).
+rl:
+  envs: 64            # partite portate avanti in parallelo
+  learnerSeat: rotate # "rotate" oppure un numero da 1 a 5
+
+
+# =============================================================================
+#  POLICY ADDESTRATE
+#
+#  Ogni voce qui diventa un agente usabile come tutti gli altri: negli
+#  `agents:` degli scenari, in `--agents`, e nel menu di setup della partita.
+#
+#  Se non hai ancora addestrato nulla, commenta questo blocco.
+#  Per addestrare:  npm run train
+# =============================================================================
+policies:
+  trained:
+    file: models/policy.json
+    # 0 = gioca sempre la mossa che ritiene migliore (forte ma prevedibile)
+    # 1 = campiona come in addestramento (più varia; in un gioco di bluff una
+    #     policy prevedibile è sfruttabile)
+    temperature: 0
+
+
+# =============================================================================
+#  ADDESTRAMENTO (npm run train)
+#
+#  Il learner occupa un posto; `opponents` riempie gli altri. Il tavolo è
+#  quindi 1 + len(opponents) giocatori.
+# =============================================================================
+training:
+  scenario: base                                # su quale scenario allenarsi
+  opponents: [etfhunter, cashking, bluffer]      # chi siede agli altri posti
+  steps: 2000000                                 # decisioni totali
+  envs: 64
+  out: models/policy.json
+
+  # Iperparametri PPO. Da toccare solo se la curva non sale.
+  hidden: [128, 128]
+  learningRate: 0.0003
+  entropy: 0.02          # più alto = esplora più a lungo
+  gamma: 1.0             # episodi corti: niente sconto
+  gaeLambda: 0.95
+  clip: 0.2
+  epochs: 4
+  minibatches: 4
+  rolloutSteps: 128
+  evalEvery: 200000      # ogni quanto valutare e salvare se migliora
+  evalEpisodes: 2000
+
+# Conserva le partite grezze in .jsonl (una riga per partita), per analisi tue.
+# Pesano circa 4 MB ogni 1.000 partite: con 20.000 partite per scenario sono
+# ~70 MB a testa. Il riepilogo a schermo e i grafici funzionano comunque.
+saveMatches: false
+
+
+# =============================================================================
+#  SCENARI
+#
+#  Ogni scenario è una simulazione completa. Con più di uno, il report affianca
+#  le curve nello stesso grafico — massimo 3, oltre i colori non restano
+#  distinguibili sotto daltonismo.
+#
+#  Dentro "balance:" le chiavi sono ESATTAMENTE i campi di
+#  src/engine/balance.ts. Quello che non scrivi resta al valore di default.
+#  Ogni scenario può anche ridefinire games, agents e seed.
+# =============================================================================
+scenarios:
+  - name: base
+    # nessun override: il bilanciamento di serie
+
+  - name: rete vs archetipi
+    agents: [trained, etfhunter, cashking, bluffer]
+
+  - name: commissioni piatte
+    balance:
+      marketFees: [0, 1, 1, 2]
+
+# Il report confronta al massimo 3 scenari (oltre, i colori non restano
+# distinguibili sotto daltonismo). Altri esempi, da scambiare con questi:
+#
+#   - name: trader povero
+#     balance:
+#       trader:
+#         cash: 3
+#
+#   - name: rete prevedibile
+#     agents: [trained, etfhunter, cashking, bluffer]
+#     # con policies > trained > temperature: 0
+
+
+# -----------------------------------------------------------------------------
+#  ESEMPI DI OVERRIDE — copiali dentro un "balance:" per provarli
+# -----------------------------------------------------------------------------
+#  startingCash: 14              # denaro iniziale
+#  rounds: 6                     # durata della partita
+#  wealthPerPV: 3                # $ di patrimonio per 1 PV (alza il peso degli ETF)
+#  ipoCost: 2                    # costo dell'IPO
+#  marketFees: [0, 2, 4, 6]      # una commissione per posizione del Mercato
+#  etfAbandonUntilRound: 2       # ultimo Round in cui si può svendere un ETF
+#  crashAt: 8                    # soglia del Crash (con priceMax: 8)
+#  valueInvestor: { draw: 4, keepMax: 2, cash: 2 }
+#  trader: { draw: 1, cash: 5, penaltyDiscards: 1 }
+#
+#  Per cambiare CARTE (nomi, mazzi, requisiti degli ETF, settori) modifica
+#  direttamente src/engine/balance.ts: lì c'è il catalogo completo.
+#  Dopo ogni modifica: npm run balance

@@ -1,0 +1,2 @@
+# Il minimo per giocare: python/play.py legge simulazione.yaml.
+PyYAML>=6.0
